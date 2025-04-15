@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Character Inspiration Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      max-width: 960px;
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #2b3a42;
+    }
+
+    button {
+      background: #7a6ff0;
+      color: white;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #5d53c0;
+    }
+
+    #result {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      flex-wrap: wrap;
+    }
+
+    #result.visible {
+      opacity: 1;
+    }
+
+    .card {
+      padding: 20px;
+      border-radius: 12px;
+      flex: 1 1 250px;
+      text-align: center;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .trait { background: #d5f4e6; }
+    .background { background: #fce1e4; }
+    .motivation { background: #f8e9a1; }
+    .science { background: #e4c1f9; }
+    .situation { background: #bee3db; }
+
+    .label {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Character Inspiration Generator</h1>
+    <button onclick="generate()">Get Inspiration</button>
+    <div id="result">
+      <div class="card trait">
+        <div class="label">Trait / Quirk</div>
+        <div id="trait"></div>
+      </div>
+      <div class="card background">
+        <div class="label">Background / Origin</div>
+        <div id="background"></div>
+      </div>
+      <div class="card motivation">
+        <div class="label">Motivation / Drive</div>
+        <div id="motivation"></div>
+      </div>
+      <div class="card science">
+        <div class="label">Science Concept</div>
+        <div id="science"></div>
+      </div>
+      <div class="card situation">
+        <div class="label">Situation</div>
+        <div id="situation"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const traits = [
+      "Obsessively tidy", "Cannot lie", "Has prophetic dreams", "Talks to animals", "Hoards small objects",
+      "Involuntarily mimics others", "Always cold, even in heat", "Never asks questions", "Laughs at inopportune moments",
+      "Speaks in rhymes under stress", "Compulsively writes everything down", "Avoids eye contact",
+      "Refuses to use technology", "Constantly narrates their thoughts", "Allergic to sunlight", "Over-apologises",
+      "Sees patterns in random things", "Believes they’re being watched", "Pretends to be someone else regularly",
+      "Can read microexpressions with eerie accuracy"
+    ];
+
+    const backgrounds = [
+      "Raised in exile", "Born during a solar eclipse", "Former cult member", "Grew up on a cargo freighter",
+      "Educated underground", "Abandoned at a research station", "Royal orphan", "Escaped from a thought-control program",
+      "Raised by androids", "Lived alone in the ruins of a city", "Grew up among nomads", "Born into espionage",
+      "Apprentice to a villain", "Former child prodigy", "Raised without language", "Survivor of a failed colony",
+      "Born in zero gravity", "Escaped from a simulation", "Lived in hiding since birth", "Banned from their home community"
+    ];
+
+    const motivations = [
+      "Seeking redemption", "Escaping their past", "Uncovering a buried truth", "Avenge a lost loved one",
+      "Proving their genius", "Destroying a system", "Protecting someone vulnerable", "Becoming immortal",
+      "Recovering stolen knowledge", "Breaking a family curse", "Escaping surveillance", "Solving a mystery",
+      "Exposing a lie", "Reclaiming lost memories", "Surpassing a mentor", "Fulfilling a prophecy",
+      "Finding their real identity", "Building a better world", "Preventing a disaster", "Reconnecting with someone long lost"
+    ];
+
+    const sciences = [
+      "Heisenberg Uncertainty Principle", "Genetic Drift", "Schrödinger’s Cat", "Game Theory", "Chaos Theory",
+      "Emergence", "Wave-Particle Duality", "Plate Tectonics", "Fatigue and Failure", "Entropy", "The Double Helix",
+      "Cybernetics", "Bayesian Inference", "Machine Learning", "Evolution by Natural Selection",
+      "Quantum Entanglement", "Photosynthesis", "Thermodynamics", "Dark Matter", "CRISPR and Genetic Engineering"
+    ];
+
+    const situations = [
+      "Just discovered a secret that changes everything", "On the run from an unknown pursuer",
+      "Trapped in a place they once called home", "Has been sent to retrieve something dangerous",
+      "Just woke up with no memory", "Framed for something they didn’t do", "Must pass as someone they’re not",
+      "Receives a message meant for someone else", "Caught in a repeating loop", "Must protect a secret at all costs",
+      "Undercover in a hostile place", "Witness to a forbidden experiment", "Finds out their memories are fabricated",
+      "Sent to explore a newly discovered place", "Betrayed by someone they trusted", "Must solve a mystery in 24 hours",
+      "Assigned to guard something incomprehensible", "Their presence is destabilising reality",
+      "Asked to take someone else’s place", "Finds out they are the experiment"
+    ];
+
+    function generate() {
+      document.getElementById("trait").innerText = traits[Math.floor(Math.random() * traits.length)];
+      document.getElementById("background").innerText = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+      document.getElementById("motivation").innerText = motivations[Math.floor(Math.random() * motivations.length)];
+      document.getElementById("science").innerText = sciences[Math.floor(Math.random() * sciences.length)];
+      document.getElementById("situation").innerText = situations[Math.floor(Math.random() * situations.length)];
+      document.getElementById("result").classList.add("visible");
+    }
+  </script>
+</body>
+</html>
