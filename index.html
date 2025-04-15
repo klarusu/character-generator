@@ -88,12 +88,45 @@
       margin-bottom: 10px;
       color: #333;
     }
+
+    #block-message {
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 12px;
+      background-color: #ffe3e3;
+      color: #b00020;
+      font-weight: bold;
+      font-size: 18px;
+      display: none;
+    }
+
+    #countdown {
+      font-weight: bold;
+      color: #b00020;
+    }
+
+    #reset-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ddd;
+      color: #333;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+
+    #reset-btn:hover {
+      background: #bbb;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Character Inspiration Generator</h1>
     <button onclick="generate()">Get Inspiration</button>
+    <button id="reset-btn" onclick="resetTimer()">Reset Timer</button>
+
     <div id="result">
       <div class="card trait">
         <div class="label">Trait / Quirk</div>
@@ -116,9 +149,16 @@
         <div id="situation"></div>
       </div>
     </div>
+
+    <div id="block-message">
+      ⏳ Please wait <span id="countdown">...</span> before generating another inspiration.
+    </div>
   </div>
 
   <script>
+    const COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
+    let countdownInterval;
+
     const traits = [
       "Obsessively tidy", "Cannot lie", "Has prophetic dreams", "Talks to animals", "Hoards small objects",
       "Involuntarily mimics others", "Always cold, even in heat", "Never asks questions", "Laughs at inopportune moments",
@@ -163,12 +203,68 @@
     ];
 
     function generate() {
-      document.getElementById("trait").innerText = traits[Math.floor(Math.random() * traits.length)];
-      document.getElementById("background").innerText = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-      document.getElementById("motivation").innerText = motivations[Math.floor(Math.random() * motivations.length)];
-      document.getElementById("science").innerText = sciences[Math.floor(Math.random() * sciences.length)];
-      document.getElementById("situation").innerText = situations[Math.floor(Math.random() * situations.length)];
+      const now = Date.now();
+      const lastClickedRaw = localStorage.getItem('charGen_lastClicked');
+      const lastClicked = lastClickedRaw ? parseInt(lastClickedRaw) : 0;
+      const timePassed = now - lastClicked;
+
+      if (timePassed < COOLDOWN_MS) {
+        showBlockMessage(COOLDOWN_MS - timePassed);
+        return;
+      }
+
+      document.getElementById("trait").innerText = pickRandom(traits);
+      document.getElementById("background").innerText = pickRandom(backgrounds);
+      document.getElementById("motivation").innerText = pickRandom(motivations);
+      document.getElementById("science").innerText = pickRandom(sciences);
+      document.getElementById("situation").innerText = pickRandom(situations);
+
       document.getElementById("result").classList.add("visible");
+      clearBlockMessage();
+      localStorage.setItem('charGen_lastClicked', now.toString());
+    }
+
+    function pickRandom(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function showBlockMessage(timeLeft) {
+      const block = document.getElementById("block-message");
+      const countdown = document.getElementById("countdown");
+
+      startCountdown(timeLeft);
+      block.style.display = 'block';
+      document.getElementById("result").classList.remove("visible");
+    }
+
+    function clearBlockMessage() {
+      document.getElementById("block-message").style.display = 'none';
+      clearInterval(countdownInterval);
+    }
+
+    function startCountdown(duration) {
+      const countdown = document.getElementById("countdown");
+      clearInterval(countdownInterval);
+
+      function updateCountdown() {
+        const minutes = Math.floor(duration / 60000);
+        const seconds = Math.floor((duration % 60000) / 1000);
+        countdown.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        if (duration <= 0) {
+          clearInterval(countdownInterval);
+          document.getElementById("block-message").style.display = "none";
+        }
+        duration -= 1000;
+      }
+
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 1000);
+    }
+
+    function resetTimer() {
+      localStorage.removeItem('charGen_lastClicked');
+      document.getElementById('result').classList.remove('visible');
+      clearBlockMessage();
     }
   </script>
 </body>
